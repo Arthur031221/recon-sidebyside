@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>扭腰暖身段 3D 並排・官方渲染</title>
+<style>
+  :root { --bg:#0b0e12; --surface:#121720; --line:#242c38; --fg:#e7eaef; --muted:#8d97a6; --accent:#f0b54a;
+    --font-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif; --font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace; color-scheme:dark; }
+  *,*::before,*::after { box-sizing:border-box; }
+  html,body { margin:0; background:var(--bg); color:var(--fg); }
+  body { font-family:var(--font-body); font-size:15px; line-height:1.6; }
+  a { color:var(--accent); }
+  .wrap { max-width:1480px; margin:0 auto; padding:20px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px)); display:flex; flex-direction:column; gap:14px; }
+  h1 { margin:0; font-size:22px; font-weight:700; text-wrap:balance; }
+  h2 { margin:18px 0 0; font-size:18px; }
+  p { margin:0; } .hint, .muted { color:var(--muted); font-size:14px; }
+  video { width:100%; height:auto; background:#000; border:1px solid var(--line); border-radius:6px; display:block; }
+  .bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  button { font:inherit; color:var(--fg); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:4px 12px; cursor:pointer; }
+  button[aria-pressed="true"] { border-color:var(--accent); color:var(--accent); }
+  .mono { font-family:var(--font-mono); font-size:13px; color:var(--muted); }
+  .grid4 { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
+  @media (max-width:700px) { .grid4 { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+  figure { margin:0; } figcaption { font-size:13px; color:var(--muted); padding:2px 2px 4px; }
+  .grid4 img, .ph { width:100%; aspect-ratio:358/637; object-fit:cover; display:block; background:#000; border:1px solid var(--line); border-radius:6px; }
+  .ph { display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:13px; text-align:center; padding:8px; }
+  input[type=range] { width:min(420px,100%); accent-color:var(--accent); }
+  .scroll { overflow-x:auto; border:1px solid var(--line); border-radius:6px; }
+  table { border-collapse:collapse; } th { font-weight:500; font-size:13px; color:var(--muted); padding:4px 6px; text-align:left; white-space:nowrap; }
+  td { padding:2px; } td img { width:120px; height:auto; display:block; border-radius:3px; }
+  ul.notes { margin:0; padding-left:20px; color:var(--muted); font-size:14px; display:flex; flex-direction:column; gap:6px; max-width:100ch; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
+  .card { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:10px; display:flex; flex-direction:column; gap:8px; }
+  .card img { width:100%; height:auto; border-radius:4px; display:block; }
+</style>
+</head>
+<body>
+<main class="wrap">
+<h1>第二次錄影・條紋 polo 扭腰（暖身段）・官方渲染</h1>
+<p class="hint"><a href="../">← 全部片段</a>　<a href="3d.html">互動 3D（不刪減，瀏覽器即時畫）</a></p><p class="hint">其他片段：<a href="../c2_A_02/index.html">扭腰測試段</a>　<a href="../c2_A_05/index.html">大幅傾身</a>　<a href="../c2_A_05w/index.html">傾身重跑・手持座標</a>　<a href="../c2_A_05f/index.html">傾身重跑・固定機座標</a></p>
+<p class="muted">這一頁的畫面全部是各方法自己的 CUDA 渲染器畫的：MoSca、WorldTree 用官方程式碼和官方訓練好的模型，我們用自己訓練時的渲染器；網頁只是播放存好的圖，沒有重新畫，也沒有刪任何高斯。只供觀看，不是量測。</p>
+<h2>留出的固定機視角（逐幀同步）</h2>
+<p class="muted">真實照片（留出的固定機） ｜ MoSca ｜ WorldTree ｜ 我們（完整方法）。四格是同一幀，固定機那一格是真實照片。共 299 幀，原速每秒 7.5 幀。</p>
+<video id="v" src="media/test.mp4" poster="media/poster.jpg" controls loop muted playsinline preload="metadata"></video>
+<div class="bar"><button type="button" data-r="0.5">0.5×</button><button type="button" data-r="1" aria-pressed="true">1×</button><button type="button" data-r="2">2×</button><button type="button" id="prev">◀ 上一幀</button><button type="button" id="next">下一幀 ▶</button><span class="mono" id="fr"></span></div>
+<h2>環繞視角（繞人轉 −90° 到 +90°）</h2>
+<p class="muted">同一幀、同一個人，把固定機繞著人的中心左右轉。只有 0° 有真實照片；其他角度沒有任何相機拍過，看的是 3D 結構對不對。</p>
+<div class="bar" id="fbtn"></div>
+<div class="bar"><label for="yaw">角度</label><input id="yaw" type="range" min="0" max="6" step="1" value="3"><span class="mono" id="yl"></span><button type="button" id="sweep" aria-pressed="false">▶ 自動轉</button></div>
+<div class="grid4" id="og"></div>
+<p class="muted">同一幀所有角度一覽（橫向捲動）：</p>
+<div class="scroll"><table id="ot"></table></div>
+<ul class="notes">
+<li>影片：手持 IMG_7158、固定機 20261106_144045。每種方法都只用手持影片訓練；固定機沒拿來訓練，只當對照。這段是開發用的暖身段，不算論文成績。</li>
+<li>為什麼和對手論文、專案頁的圖看起來不一樣：那些是他們挑的資料集和片段；這裡是我們自己拍的影片，三種方法用同一份相機與同一組留出畫面，沒有挑。</li>
+<li>互動 3D 那一頁是瀏覽器即時畫的（不刪減，約 195 MB），只畫基本色，會比這裡略粗。</li>
+</ul>
+</main>
+<script>
+var FPS=7.5, N=299, ORB={"frames": ["1_00036", "1_00069", "1_00104", "1_00137", "1_00171", "1_00210", "1_00246", "1_00281"], "yaws": [-90, -60, -30, 0, 30, 60, 90], "methods": [["mosca", "MoSca"], ["wt", "WorldTree"], ["ours", "\u6211\u5011\uff08\u5b8c\u6574\u65b9\u6cd5\uff09"]]}, ARM="\u6211\u5011\uff08\u5b8c\u6574\u65b9\u6cd5\uff09";
+(function(){
+  var v=document.getElementById('v'), fr=document.getElementById('fr');
+  function cur(){ return Math.min(N-1, Math.floor(v.currentTime*FPS+1e-3)); }
+  function show(){ fr.textContent='第 '+(cur()+1)+' / '+N+' 幀'; }
+  v.addEventListener('timeupdate',show); v.addEventListener('seeked',show); show();
+  document.querySelectorAll('button[data-r]').forEach(function(b){ b.addEventListener('click',function(){
+    v.playbackRate=+b.dataset.r; document.querySelectorAll('button[data-r]').forEach(function(x){x.setAttribute('aria-pressed', x===b?'true':'false');}); }); });
+  function step(d){ v.pause(); var i=Math.max(0,Math.min(N-1,cur()+d)); v.currentTime=(i+0.5)/FPS; }
+  document.getElementById('prev').onclick=function(){step(-1);}; document.getElementById('next').onclick=function(){step(1);};
+  if(!ORB) return;
+  var f=ORB.frames[0], yi=ORB.yaws.indexOf(0), yaw=document.getElementById('yaw'), yl=document.getElementById('yl'), og=document.getElementById('og'), ot=document.getElementById('ot');
+  var M=[['gt','真實照片（只有 0°）']].concat(ORB.methods), timer=null;
+  function src(m,y){ return m==='gt' ? (y===0 ? 'media/orbit/gt_'+f+'.jpg' : null) : 'media/orbit/'+m+'_'+f+'_'+y+'.jpg'; }
+  function draw(){
+    var y=ORB.yaws[yi]; yl.textContent=(y>0?'+':'')+y+'°'; yaw.value=yi; og.innerHTML='';
+    M.forEach(function(m){ var fig=document.createElement('figure'), cap=document.createElement('figcaption'); cap.textContent=m[1]; fig.appendChild(cap);
+      var s=src(m[0],y); if(s){ var im=new Image(); im.src=s; im.alt=m[1]+' '+y+'°'; fig.appendChild(im);} else { var d=document.createElement('div'); d.className='ph'; d.textContent='這個角度沒有真實照片'; fig.appendChild(d);} og.appendChild(fig); });
+    var h='<tr><th></th>'+ORB.yaws.map(function(y){return '<th>'+(y>0?'+':'')+y+'°</th>';}).join('')+'</tr>';
+    M.forEach(function(m){ h+='<tr><th>'+m[1]+'</th>'+ORB.yaws.map(function(y){ var s=src(m[0],y); return '<td>'+(s?'<img loading="lazy" src="'+s+'" alt="">':'')+'</td>'; }).join('')+'</tr>'; });
+    ot.innerHTML=h;
+    ORB.yaws.forEach(function(y){ M.forEach(function(m){ var s=src(m[0],y); if(s){ (new Image()).src=s; } }); });
+  }
+  var fb=document.getElementById('fbtn');
+  ORB.frames.forEach(function(x,i){ var b=document.createElement('button'); b.type='button'; b.textContent='第 '+(+x.split('_')[1])+' 幀'; b.setAttribute('aria-pressed', i===0?'true':'false');
+    b.onclick=function(){ f=x; fb.querySelectorAll('button').forEach(function(q){q.setAttribute('aria-pressed', q===b?'true':'false');}); draw(); }; fb.appendChild(b); });
+  yaw.addEventListener('input',function(){ yi=+yaw.value; draw(); });
+  var sw=document.getElementById('sweep'), dir=1;
+  sw.onclick=function(){ if(timer){ clearInterval(timer); timer=null; sw.textContent='▶ 自動轉'; sw.setAttribute('aria-pressed','false'); return; }
+    sw.textContent='❚❚ 停'; sw.setAttribute('aria-pressed','true');
+    timer=setInterval(function(){ if(yi+dir<0||yi+dir>=ORB.yaws.length) dir=-dir; yi+=dir; draw(); }, 700); };
+  draw();
+})();
+</script>
+</body>
+</html>
