@@ -45,8 +45,13 @@
 <p class="muted">真實照片（留出的固定機） ｜ MoSca ｜ WorldTree ｜ 我們（重跑・固定機座標）。四格是同一幀，固定機那一格是真實照片。共 324 幀，原速每秒 7.5 幀。</p>
 <video id="v" src="media/test.mp4" poster="media/poster.jpg" controls loop muted playsinline preload="metadata"></video>
 <div class="bar"><button type="button" data-r="0.5">0.5×</button><button type="button" data-r="1" aria-pressed="true">1×</button><button type="button" data-r="2">2×</button><button type="button" id="prev">◀ 上一幀</button><button type="button" id="next">下一幀 ▶</button><span class="mono" id="fr"></span></div>
-<h2>環繞視角</h2>
-<p class="muted">這一段的環繞視角官方渲染還在 GPU 佇列裡，跑完就補上。</p>
+<h2>環繞視角（繞人轉 −90° 到 +90°）</h2>
+<p class="muted">同一幀、同一個人，把固定機繞著人的中心左右轉。只有 0° 有真實照片；其他角度沒有任何相機拍過，看的是 3D 結構對不對。</p>
+<div class="bar" id="fbtn"></div>
+<div class="bar"><label for="yaw">角度</label><input id="yaw" type="range" min="0" max="6" step="1" value="3"><span class="mono" id="yl"></span><button type="button" id="sweep" aria-pressed="false">▶ 自動轉</button></div>
+<div class="grid4" id="og"></div>
+<p class="muted">同一幀所有角度一覽（橫向捲動）：</p>
+<div class="scroll"><table id="ot"></table></div>
 <ul class="notes">
 <li>影片：手持 IMG_7167、固定機 20261106_145627。每種方法都只用手持影片訓練；固定機沒拿來訓練，只當對照。這是上限參考：只有「動作走到哪」的座標改用固定機影片算，訓練仍只用手持影片。正式方法不能用固定機，所以這一頁只表示座標算對時最多能到哪裡；正式成績在修正前就看過了，這裡只算事後分析。</li>
 <li>為什麼和對手論文、專案頁的圖看起來不一樣：那些是他們挑的資料集和片段；這裡是我們自己拍的影片，三種方法用同一份相機與同一組留出畫面，沒有挑。</li>
@@ -54,7 +59,7 @@
 </ul>
 </main>
 <script>
-var FPS=7.5, N=324, ORB=null, ARM="\u6211\u5011\uff08\u91cd\u8dd1\u30fb\u56fa\u5b9a\u6a5f\u5ea7\u6a19\uff09";
+var FPS=7.5, N=324, ORB={"frames": ["1_00036", "1_00072", "1_00108", "1_00144", "1_00180", "1_00216", "1_00252", "1_00288"], "yaws": [-90, -60, -30, 0, 30, 60, 90], "methods": [["mosca", "MoSca"], ["wt", "WorldTree"], ["ours", "\u6211\u5011\uff08\u91cd\u8dd1\u30fb\u56fa\u5b9a\u6a5f\u5ea7\u6a19\uff09"]]}, ARM="\u6211\u5011\uff08\u91cd\u8dd1\u30fb\u56fa\u5b9a\u6a5f\u5ea7\u6a19\uff09";
 (function(){
   var v=document.getElementById('v'), fr=document.getElementById('fr');
   function cur(){ return Math.min(N-1, Math.floor(v.currentTime*FPS+1e-3)); }
