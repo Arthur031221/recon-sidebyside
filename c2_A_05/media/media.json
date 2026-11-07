@@ -1,0 +1,16 @@
+{
+ "test": {
+  "n": 324,
+  "fps": 7.5,
+  "W": 1444,
+  "H": 674,
+  "labels": [
+   "\u771f\u5be6\u7167\u7247\uff08\u7559\u51fa\u7684\u56fa\u5b9a\u6a5f\uff09",
+   "MoSca",
+   "WorldTree",
+   "\u6211\u5011\uff08\u5b8c\u6574\u65b9\u6cd5\uff09"
+  ],
+  "first": "1_00000.png",
+  "last": "1_00324.png"
+ }
+}
